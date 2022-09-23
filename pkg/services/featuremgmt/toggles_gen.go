@@ -214,4 +214,8 @@ const (
 	// FlagIncreaseInMemDatabaseQueryCache
 	// Enable more in memory caching for database queries
 	FlagIncreaseInMemDatabaseQueryCache = "increaseInMemDatabaseQueryCache"
+
+	// FlagShowDashboardValidationWarnings
+	// Show warnings when Dashboards do not validate against the schema
+	FlagShowDashboardValidationWarnings = "showDashboardValidationWarnings"
 )
