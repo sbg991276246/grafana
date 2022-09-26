@@ -5,6 +5,33 @@ import { TermCount } from 'app/core/components/TagFilter/TagFilter';
 
 import { DashboardQueryResult, GrafanaSearcher, QueryResponse, SearchQuery } from '.';
 
+// https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
+function permute(arr: unknown[]) {
+  let length = arr.length,
+    result = [arr.slice()],
+    c = new Array(length).fill(0),
+    i = 1,
+    k,
+    p;
+
+  while (i < length) {
+    if (c[i] < i) {
+      k = i % 2 && c[i];
+      p = arr[i];
+      arr[i] = arr[k];
+      arr[k] = p;
+      ++c[i];
+      i = 1;
+      result.push(arr.slice());
+    } else {
+      c[i] = 0;
+      ++i;
+    }
+  }
+
+  return result;
+}
+
 export class FrontendSearcher implements GrafanaSearcher {
   readonly cache = new Map<string, Promise<FullResultCache>>();
 
@@ -70,13 +97,16 @@ export class FrontendSearcher implements GrafanaSearcher {
 }
 
 class FullResultCache {
-  readonly lower: string[];
+  readonly names: string[];
   empty: DataFrameView<DashboardQueryResult>;
 
-  ufuzzy = new uFuzzy();
+  ufuzzy = new uFuzzy({
+    // allow 1 extra char between each char within needle's terms
+    intraMax: 1,
+  });
 
   constructor(private full: DataFrameView<DashboardQueryResult>) {
-    this.lower = this.full.fields.name.values.toArray().map((v) => (v ? v.toLowerCase() : ''));
+    this.names = this.full.fields.name.values.toArray();
 
     // Copy with empty values
     this.empty = new DataFrameView<DashboardQueryResult>({
@@ -91,23 +121,34 @@ class FullResultCache {
     if (!query?.length || query === '*') {
       return this.full;
     }
-    const match = query.toLowerCase();
+
     const allFields = this.full.dataFrame.fields;
+    const haystack = this.names;
 
     // eslint-disable-next-line
     const values = allFields.map((v) => [] as any[]); // empty value for each field
 
-    let idxs = this.ufuzzy.filter(this.lower, match);
-    let info = this.ufuzzy.info(idxs, this.lower, match);
-    let order = this.ufuzzy.sort(info, this.lower, match);
+    // out-of-order terms
+    const oooIdxs = new Set<number>();
+    const oooNeedles = permute(query.split(/[^A-Za-z0-9]+/g)).map((terms) => terms.join(' '));
 
-    for (let i = 0; i < order.length; i++) {
-      let idx = info.idx[order[i]];
+    oooNeedles.forEach((needle) => {
+      let idxs = this.ufuzzy.filter(haystack, needle);
+      let info = this.ufuzzy.info(idxs, haystack, needle);
+      let order = this.ufuzzy.sort(info, haystack, needle);
 
-      for (let c = 0; c < allFields.length; c++) {
-        values[c].push(allFields[c].values.get(idx));
+      for (let i = 0; i < order.length; i++) {
+        let haystackIdx = info.idx[order[i]];
+
+        if (!oooIdxs.has(haystackIdx)) {
+          oooIdxs.add(haystackIdx);
+
+          for (let c = 0; c < allFields.length; c++) {
+            values[c].push(allFields[c].values.get(haystackIdx));
+          }
+        }
       }
-    }
+    });
 
     // mutates the search object
     this.empty.dataFrame.fields.forEach((f, idx) => {
