@@ -1,3 +1,5 @@
+import uFuzzy from '@leeoniya/ufuzzy';
+
 import { DataFrameView, SelectableValue, ArrayVector } from '@grafana/data';
 import { TermCount } from 'app/core/components/TagFilter/TagFilter';
 
@@ -71,6 +73,8 @@ class FullResultCache {
   readonly lower: string[];
   empty: DataFrameView<DashboardQueryResult>;
 
+  ufuzzy = new uFuzzy();
+
   constructor(private full: DataFrameView<DashboardQueryResult>) {
     this.lower = this.full.fields.name.values.toArray().map((v) => (v ? v.toLowerCase() : ''));
 
@@ -93,11 +97,15 @@ class FullResultCache {
     // eslint-disable-next-line
     const values = allFields.map((v) => [] as any[]); // empty value for each field
 
-    for (let i = 0; i < this.lower.length; i++) {
-      if (this.lower[i].indexOf(match) >= 0) {
-        for (let c = 0; c < allFields.length; c++) {
-          values[c].push(allFields[c].values.get(i));
-        }
+    let idxs = this.ufuzzy.filter(this.lower, match);
+    let info = this.ufuzzy.info(idxs, this.lower, match);
+    let order = this.ufuzzy.sort(info, this.lower, match);
+
+    for (let i = 0; i < order.length; i++) {
+      let idx = info.idx[order[i]];
+
+      for (let c = 0; c < allFields.length; c++) {
+        values[c].push(allFields[c].values.get(idx));
       }
     }
 
