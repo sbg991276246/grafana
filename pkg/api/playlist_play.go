@@ -2,12 +2,14 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strconv"
 
 	"github.com/grafana/grafana/pkg/api/dtos"
 	_ "github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
+	"github.com/grafana/grafana/pkg/services/playlist"
 	"github.com/grafana/grafana/pkg/services/search"
 	"github.com/grafana/grafana/pkg/services/user"
 )
@@ -68,23 +70,33 @@ func (hs *HTTPServer) populateDashboardsByTag(ctx context.Context, orgID int64, 
 
 // Deprecated -- the frontend can do this better
 func (hs *HTTPServer) LoadPlaylistDashboards(ctx context.Context, orgID int64, signedInUser *user.SignedInUser, playlistUID string) (dtos.PlaylistDashboardsSlice, error) {
-	playlistItems, _ := hs.LoadPlaylistItems(ctx, playlistUID, orgID)
+	cmd := playlist.GetPlaylistByUidQuery{UID: playlistUID, OrgId: orgID}
+	dto, err := hs.playlistService.GetWithItems(ctx, &cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	playlistItems := *dto.Items
 
 	dashboardByIDs := make([]int64, 0)
 	dashboardByTag := make([]string, 0)
 	dashboardIDOrder := make(map[int64]int)
 	dashboardTagOrder := make(map[string]int)
 
-	for _, i := range playlistItems {
+	for order, i := range playlistItems {
 		if i.Type == "dashboard_by_id" {
 			dashboardID, _ := strconv.ParseInt(i.Value, 10, 64)
 			dashboardByIDs = append(dashboardByIDs, dashboardID)
-			dashboardIDOrder[dashboardID] = i.Order
+			dashboardIDOrder[dashboardID] = order
 		}
 
 		if i.Type == "dashboard_by_tag" {
 			dashboardByTag = append(dashboardByTag, i.Value)
-			dashboardTagOrder[i.Value] = i.Order
+			dashboardTagOrder[i.Value] = order
+		}
+
+		if i.Type == "dashboard_by_uid" {
+			return nil, fmt.Errorf("this deprecated API does not support dashboard loading by UID")
 		}
 	}
 

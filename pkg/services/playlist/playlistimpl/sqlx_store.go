@@ -15,32 +15,33 @@ type sqlxStore struct {
 }
 
 func (s *sqlxStore) Insert(ctx context.Context, cmd *playlist.CreatePlaylistCommand) (*playlist.Playlist, error) {
+	p := playlist.Playlist{}
 	var err error
 	uid, err := newGenerateAndValidateNewPlaylistUid(ctx, s.sess, cmd.OrgId)
 	if err != nil {
 		return nil, err
 	}
 
-	p := &playlist.Playlist{
-		Interval: cmd.Interval,
+	p = playlist.Playlist{
 		Name:     cmd.Name,
-		Uid:      uid,
+		Interval: cmd.Interval,
+		OrgId:    cmd.OrgId,
+		UID:      uid,
 	}
 
 	err = s.sess.WithTransaction(ctx, func(tx *session.SessionTx) error {
 		query := `INSERT INTO playlist (name, "interval", org_id, uid) VALUES (?, ?, ?, ?)`
 		var err error
-		id, err := tx.ExecWithReturningId(ctx, query, cmd.Name, cmd.Interval, cmd.OrgId, uid)
+		p.Id, err = tx.ExecWithReturningId(ctx, query, p.Name, p.Interval, p.OrgId, p.UID)
 		if err != nil {
 			return err
 		}
-		p.Id = id
 
 		if len(cmd.Items) > 0 {
 			playlistItems := make([]playlist.PlaylistItem, 0)
 			for _, item := range cmd.Items {
 				playlistItems = append(playlistItems, playlist.PlaylistItem{
-					PlaylistId: id,
+					PlaylistId: p.Id,
 					Type:       item.Type,
 					Value:      item.Value,
 					Order:      item.Order,
@@ -56,11 +57,11 @@ func (s *sqlxStore) Insert(ctx context.Context, cmd *playlist.CreatePlaylistComm
 		return nil
 	})
 
-	return p, err
+	return &p, err
 }
 
-func (s *sqlxStore) Update(ctx context.Context, cmd *playlist.UpdatePlaylistCommand) (*playlist.Playlist, error) {
-	dto := playlist.Playlist{}
+func (s *sqlxStore) Update(ctx context.Context, cmd *playlist.UpdatePlaylistCommand) (*playlist.PlaylistDTO, error) {
+	dto := playlist.PlaylistDTO{}
 
 	// Get the id of playlist to be updated with orgId and UID
 	existingPlaylist, err := s.Get(ctx, &playlist.GetPlaylistByUidQuery{UID: cmd.UID, OrgId: cmd.OrgId})
@@ -69,14 +70,12 @@ func (s *sqlxStore) Update(ctx context.Context, cmd *playlist.UpdatePlaylistComm
 	}
 
 	// Create object to be update to
-	p := playlist.PlaylistWithOrgID{
-		Playlist: playlist.Playlist{
-			Id:       existingPlaylist.Id,
-			Uid:      cmd.UID,
-			Name:     cmd.Name,
-			Interval: cmd.Interval,
-		},
-		OrgId: cmd.OrgId,
+	p := playlist.Playlist{
+		Id:       existingPlaylist.Id,
+		UID:      cmd.UID,
+		OrgId:    cmd.OrgId,
+		Name:     cmd.Name,
+		Interval: cmd.Interval,
 	}
 
 	err = s.sess.WithTransaction(ctx, func(tx *session.SessionTx) error {

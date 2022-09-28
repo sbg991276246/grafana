@@ -11,15 +11,10 @@
 // not exported to exclude it from grafana-schema's public API surface.
 
 interface Playlist {
-  id: number;
   interval: string;
   items?: {
-    id: number;
-    playlist_id: number;
-    type: ('dashboard_by_id' | 'dashboard_by_tag');
+    type: ('dashboard_by_uid' | 'dashboard_by_tag' | 'dashboard_by_id');
     value: string;
-    title: string;
-    order: number;
   }[];
   name: string;
   uid: string;

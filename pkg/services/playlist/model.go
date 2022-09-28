@@ -2,8 +2,6 @@ package playlist
 
 import (
 	"errors"
-
-	"github.com/grafana/grafana/pkg/coremodel/playlist"
 )
 
 // Typed errors
@@ -14,12 +12,39 @@ var (
 )
 
 // Playlist model
-type Playlist = playlist.Model
-type PlaylistItem = playlist.Items
+type Playlist struct {
+	Id       int64  `json:"id,omitempty" db:"id"`
+	UID      string `json:"uid" xorm:"uid" db:"uid"`
+	Name     string `json:"name" db:"name"`
+	Interval string `json:"interval" db:"interval"`
+	OrgId    int64  `json:"-" db:"org_id"`
+}
 
-type PlaylistWithOrgID struct {
-	Playlist
-	OrgId int64
+type PlaylistDTO struct {
+	Id       int64             `json:"id"`
+	UID      string            `json:"uid"`
+	Name     string            `json:"name"`
+	Interval string            `json:"interval"`
+	OrgId    int64             `json:"-"`
+	Items    []PlaylistItemDTO `json:"items"`
+}
+
+type PlaylistItemDTO struct {
+	Id         int64  `json:"id"`
+	PlaylistId int64  `json:"playlistid"`
+	Type       string `json:"type"`
+	Title      string `json:"title"`
+	Value      string `json:"value"`
+	Order      int    `json:"order"`
+}
+
+type PlaylistItem struct {
+	Id         int64  `db:"id"`
+	PlaylistId int64  `db:"playlist_id"`
+	Type       string `db:"type"`
+	Value      string `db:"value"`
+	Order      int    `db:"order"`
+	Title      string `db:"title"`
 }
 
 type Playlists []*Playlist
@@ -29,18 +54,18 @@ type Playlists []*Playlist
 //
 
 type UpdatePlaylistCommand struct {
-	OrgId    int64          `json:"-"`
-	UID      string         `json:"uid"`
-	Name     string         `json:"name" binding:"Required"`
-	Interval string         `json:"interval"`
-	Items    []PlaylistItem `json:"items"`
+	OrgId    int64             `json:"-"`
+	UID      string            `json:"uid"`
+	Name     string            `json:"name" binding:"Required"`
+	Interval string            `json:"interval"`
+	Items    []PlaylistItemDTO `json:"items"`
 }
 
 type CreatePlaylistCommand struct {
-	Name     string         `json:"name" binding:"Required"`
-	Interval string         `json:"interval"`
-	Items    []PlaylistItem `json:"items"`
-	OrgId    int64          `json:"-"`
+	Name     string            `json:"name" binding:"Required"`
+	Interval string            `json:"interval"`
+	Items    []PlaylistItemDTO `json:"items"`
+	OrgId    int64             `json:"-"`
 }
 
 type DeletePlaylistCommand struct {
@@ -53,6 +78,7 @@ type DeletePlaylistCommand struct {
 //
 
 type GetPlaylistsQuery struct {
+	// NOTE: the name query is never used by the grafana frontend
 	Name  string
 	Limit int
 	OrgId int64

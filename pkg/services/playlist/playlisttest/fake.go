@@ -3,31 +3,41 @@ package playlisttest
 import (
 	"context"
 
+	playlistCM "github.com/grafana/grafana/pkg/coremodel/playlist"
+
 	"github.com/grafana/grafana/pkg/services/playlist"
 )
 
 type FakePlaylistService struct {
-	ExpectedPlaylist      *playlist.Playlist
-	ExpectedPlaylistDTO   *playlist.Playlist
-	ExpectedPlaylistItems []playlist.PlaylistItem
-	ExpectedPlaylists     playlist.Playlists
-	ExpectedError         error
+	ExpectedPlaylist          *playlist.Playlist
+	ExpectedPlaylistDTO       *playlist.PlaylistDTO
+	ExpectedPlaylistWithItems *playlistCM.Model
+	ExpectedPlaylistItems     []playlist.PlaylistItem
+	ExpectedPlaylists         playlist.Playlists
+	ExpectedError             error
 }
 
 func NewPlaylistServiveFake() *FakePlaylistService {
 	return &FakePlaylistService{}
 }
 
+// Make sure this implements the right service
+var _ playlist.Service = &FakePlaylistService{}
+
 func (f *FakePlaylistService) Create(context.Context, *playlist.CreatePlaylistCommand) (*playlist.Playlist, error) {
 	return f.ExpectedPlaylist, f.ExpectedError
 }
 
-func (f *FakePlaylistService) Update(context.Context, *playlist.UpdatePlaylistCommand) (*playlist.Playlist, error) {
+func (f *FakePlaylistService) Update(context.Context, *playlist.UpdatePlaylistCommand) (*playlist.PlaylistDTO, error) {
 	return f.ExpectedPlaylistDTO, f.ExpectedError
 }
 
 func (f *FakePlaylistService) Get(context.Context, *playlist.GetPlaylistByUidQuery) (*playlist.Playlist, error) {
 	return f.ExpectedPlaylist, f.ExpectedError
+}
+
+func (f *FakePlaylistService) GetWithItems(context.Context, *playlist.GetPlaylistByUidQuery) (*playlistCM.Model, error) {
+	return f.ExpectedPlaylistWithItems, f.ExpectedError
 }
 
 func (f *FakePlaylistService) GetItems(context.Context, *playlist.GetPlaylistItemsByUidQuery) ([]playlist.PlaylistItem, error) {
