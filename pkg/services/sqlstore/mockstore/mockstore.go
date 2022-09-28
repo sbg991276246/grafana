@@ -5,6 +5,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/apikey"
+	"github.com/grafana/grafana/pkg/services/playlist"
 	"github.com/grafana/grafana/pkg/services/sqlstore"
 	"github.com/grafana/grafana/pkg/services/sqlstore/migrator"
 	"github.com/grafana/grafana/pkg/services/sqlstore/session"
@@ -258,27 +259,27 @@ func (m SQLStoreMock) GetDashboardACLInfoList(ctx context.Context, query *models
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) CreatePlaylist(ctx context.Context, cmd *models.CreatePlaylistCommand) error {
+func (m *SQLStoreMock) CreatePlaylist(ctx context.Context, cmd *playlist.CreatePlaylistCommand) error {
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) UpdatePlaylist(ctx context.Context, cmd *models.UpdatePlaylistCommand) error {
+func (m *SQLStoreMock) UpdatePlaylist(ctx context.Context, cmd *playlist.UpdatePlaylistCommand) error {
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) GetPlaylist(ctx context.Context, query *models.GetPlaylistByUidQuery) error {
+func (m *SQLStoreMock) GetPlaylist(ctx context.Context, query *playlist.GetPlaylistByUidQuery) error {
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) DeletePlaylist(ctx context.Context, cmd *models.DeletePlaylistCommand) error {
+func (m *SQLStoreMock) DeletePlaylist(ctx context.Context, cmd *playlist.DeletePlaylistCommand) error {
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) SearchPlaylists(ctx context.Context, query *models.GetPlaylistsQuery) error {
+func (m *SQLStoreMock) SearchPlaylists(ctx context.Context, query *playlist.GetPlaylistsQuery) error {
 	return m.ExpectedError
 }
 
-func (m *SQLStoreMock) GetPlaylistItem(ctx context.Context, query *models.GetPlaylistItemsByUidQuery) error {
+func (m *SQLStoreMock) GetPlaylistItem(ctx context.Context, query *playlist.GetPlaylistItemsByUidQuery) error {
 	return m.ExpectedError
 }
 
