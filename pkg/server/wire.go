@@ -71,6 +71,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/export"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/grpcserver"
+	grpccontext "github.com/grafana/grafana/pkg/services/grpcserver/context"
+	"github.com/grafana/grafana/pkg/services/grpcserver/interceptors"
 	"github.com/grafana/grafana/pkg/services/guardian"
 	"github.com/grafana/grafana/pkg/services/hooks"
 	"github.com/grafana/grafana/pkg/services/libraryelements"
@@ -342,9 +344,11 @@ var wireBasicSet = wire.NewSet(
 	publicdashboardsApi.ProvideApi,
 	userimpl.ProvideService,
 	orgimpl.ProvideService,
+	grpccontext.ProvideContextHandler,
 	grpcserver.ProvideService,
 	grpcserver.ProvideHealthService,
 	grpcserver.ProvideReflectionService,
+	interceptors.ProvideAuthenticator,
 	teamimpl.ProvideService,
 	tempuserimpl.ProvideService,
 	loginattemptimpl.ProvideService,
