@@ -1,0 +1,27 @@
+{
+  "login": {
+    "loginTitle": "欢迎访问Grafana!",
+    "username": "邮箱或用户名",
+    "placeholder": "邮箱或用户名",
+    "usernameTips": "邮箱或用户名是必填项",
+    "password": "密码",
+    "login": "登录",
+    "logining": "正在登录...",
+    "forgetPassword": "忘记密码？",
+    "newPassword": "新密码",
+    "confirmNewPassword": "确认新密码",
+    "submit": "提交",
+    "skip": "跳过",
+    "resetPassword": "重置密码",
+    "user": "用户",
+    "userTips": "输入您的信息以获得发送给您的重置链接",
+    "sendResetEmail": "发送重置邮件",
+    "sentResetEmail": "已发送带有重置链接的邮件到该邮箱，你应该很快就会收到。",
+    "backToLogin": "返回登录",
+    "forgetTips": "您忘记你您用户名或邮箱了吗?联系您的Grafana管理员。",
+    "documentation": "文档",
+    "support": "技术支持",
+    "community": "社区",
+    "openSource": "开源地址"
+  }
+}
