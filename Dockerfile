@@ -24,6 +24,8 @@ WORKDIR $GOPATH/src/github.com/grafana/grafana
 
 COPY go.mod go.sum ./
 
+RUN go env -w GOPROXY="https://proxy.golang.com.cn,direct"
+
 RUN go mod verify
 
 COPY pkg pkg
