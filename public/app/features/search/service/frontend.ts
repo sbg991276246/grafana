@@ -5,33 +5,6 @@ import { TermCount } from 'app/core/components/TagFilter/TagFilter';
 
 import { DashboardQueryResult, GrafanaSearcher, QueryResponse, SearchQuery } from '.';
 
-// https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
-function permute(arr: unknown[]) {
-  let length = arr.length,
-    result = [arr.slice()],
-    c = new Array(length).fill(0),
-    i = 1,
-    k,
-    p;
-
-  while (i < length) {
-    if (c[i] < i) {
-      k = i % 2 && c[i];
-      p = arr[i];
-      arr[i] = arr[k];
-      arr[k] = p;
-      ++c[i];
-      i = 1;
-      result.push(arr.slice());
-    } else {
-      c[i] = 0;
-      ++i;
-    }
-  }
-
-  return result;
-}
-
 export class FrontendSearcher implements GrafanaSearcher {
   readonly cache = new Map<string, Promise<FullResultCache>>();
 
@@ -130,7 +103,8 @@ class FullResultCache {
 
     // out-of-order terms
     const oooIdxs = new Set<number>();
-    const oooNeedles = permute(query.split(/[^A-Za-z0-9]+/g)).map((terms) => terms.join(' '));
+    const queryTerms = this.ufuzzy.split(query);
+    const oooNeedles = uFuzzy.permute(queryTerms).map((terms) => terms.join(' '));
 
     oooNeedles.forEach((needle) => {
       let idxs = this.ufuzzy.filter(haystack, needle);
