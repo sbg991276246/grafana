@@ -5,6 +5,8 @@ WORKDIR /usr/src/app/
 COPY package.json yarn.lock ./
 COPY packages packages
 
+RUN yarn config set registry https://registry.npm.taobao.org/
+
 RUN yarn install --pure-lockfile --no-progress
 
 COPY Gruntfile.js tsconfig.json .eslintrc .editorconfig .browserslistrc .prettierrc.js ./

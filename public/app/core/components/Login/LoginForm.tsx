@@ -1,5 +1,6 @@
 import React, { FC, ReactElement } from 'react';
 import { selectors } from '@grafana/e2e-selectors';
+import { useTranslation } from 'react-i18next';
 
 import { FormModel } from './LoginCtrl';
 import { Button, Form, Input, Field } from '@grafana/ui';
@@ -24,12 +25,13 @@ export const submitButton = css`
 `;
 
 export const LoginForm: FC<Props> = ({ children, onSubmit, isLoggingIn, passwordHint, loginHint }) => {
+  const {t} = useTranslation();
   return (
     <div className={wrapperStyles}>
       <Form onSubmit={onSubmit} validateOn="onChange">
         {({ register, errors }) => (
           <>
-            <Field label="Email or username" invalid={!!errors.user} error={errors.user?.message}>
+            <Field label={t("login.username")} invalid={!!errors.user} error={errors.user?.message}>
               <Input
                 autoFocus
                 name="user"
@@ -38,7 +40,7 @@ export const LoginForm: FC<Props> = ({ children, onSubmit, isLoggingIn, password
                 aria-label={selectors.pages.Login.username}
               />
             </Field>
-            <Field label="Password" invalid={!!errors.password} error={errors.password?.message}>
+            <Field label={t('login.password')} invalid={!!errors.password} error={errors.password?.message}>
               <Input
                 name="password"
                 type="password"
@@ -48,7 +50,7 @@ export const LoginForm: FC<Props> = ({ children, onSubmit, isLoggingIn, password
               />
             </Field>
             <Button aria-label={selectors.pages.Login.submit} className={submitButton} disabled={isLoggingIn}>
-              {isLoggingIn ? 'Logging in...' : 'Log in'}
+              {isLoggingIn ? t('login.logining') : t('login.login')}
             </Button>
             {children}
           </>

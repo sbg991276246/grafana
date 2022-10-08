@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import config from 'app/core/config';
 import { Icon, IconName } from '@grafana/ui';
+import i18n from 'app/lang/i18n';
 
 export interface FooterLink {
   text: string;
@@ -12,19 +13,19 @@ export interface FooterLink {
 export let getFooterLinks = (): FooterLink[] => {
   return [
     {
-      text: 'Documentation',
+      text: i18n.t('login.documentation'),
       icon: 'document-info',
       url: 'https://grafana.com/docs/grafana/latest/?utm_source=grafana_footer',
       target: '_blank',
     },
     {
-      text: 'Support',
+      text: i18n.t('login.support'),
       icon: 'question-circle',
       url: 'https://grafana.com/products/enterprise/?utm_source=grafana_footer',
       target: '_blank',
     },
     {
-      text: 'Community',
+      text: i18n.t('login.community'),
       icon: 'comments-alt',
       url: 'https://community.grafana.com/?utm_source=grafana_footer',
       target: '_blank',
