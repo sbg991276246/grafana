@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { css, cx } from 'emotion';
 import { useTheme } from '@grafana/ui';
+import i18n from 'app/lang/i18n';
 
 export interface BrandComponentProps {
   className?: string;
@@ -39,7 +40,7 @@ export class Branding {
   static MenuLogo = MenuLogo;
   static LoginBoxBackground = LoginBoxBackground;
   static AppTitle = 'Grafana';
-  static LoginTitle = 'Welcome to Grafana,欢迎访问Grafana！';
+  static LoginTitle = i18n.t('login.loginTitle');
   static GetLoginSubTitle = () => {
     const slogans = [
       "Don't get in the way of the data",
