@@ -25,13 +25,13 @@ export const submitButton = css`
 `;
 
 export const LoginForm: FC<Props> = ({ children, onSubmit, isLoggingIn, passwordHint, loginHint }) => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className={wrapperStyles}>
       <Form onSubmit={onSubmit} validateOn="onChange">
         {({ register, errors }) => (
           <>
-            <Field label={t("login.username")} invalid={!!errors.user} error={errors.user?.message}>
+            <Field label={t('login.username')} invalid={!!errors.user} error={errors.user?.message}>
               <Input
                 autoFocus
                 name="user"
